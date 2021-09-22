@@ -199,36 +199,36 @@ def main(args):
     scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=warmup_step, num_training_steps=t_total)
 
     model.load_state_dict(torch.load('./bert_model.pt'))
-    # model.train()
-    # for e in range(num_epochs):
-    #     train_acc = 0.0
-    #     test_acc = 0.0
-    #     for batch_id, (token_ids, valid_length, segment_ids, token_ids2, valid_length2, segment_ids2, token_ids3, valid_length3, segment_ids3, label) in enumerate(tqdm(train_dataloader)):
-    #         optimizer.zero_grad()
-    #         token_ids = token_ids.long().to(device)
-    #         segment_ids = segment_ids.long().to(device)
-    #         valid_length = valid_length
-    #         token_ids2 = token_ids2.long().to(device)
-    #         segment_ids2 = segment_ids2.long().to(device)
-    #         valid_length2 = valid_length2
-    #         token_ids3 = token_ids3.long().to(device)
-    #         segment_ids3 = segment_ids3.long().to(device)
-    #         valid_length3 = valid_length3
-    #         label = label.long().to(device)
-    #         out = model(token_ids, valid_length, segment_ids, token_ids2, valid_length2, segment_ids2, token_ids3,
-    #                     valid_length3, segment_ids3)
-    #         loss = loss_fn(out, label)
-    #         loss.backward()
-    #         torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
-    #         optimizer.step()
-    #         scheduler.step()  # Update learning rate schedule
-    #         train_acc += calc_accuracy(out, label)
-    #         if batch_id % log_interval == 0:
-    #             print("epoch {} batch id {} loss {} train acc {}".format(e + 1, batch_id + 1, loss.data.cpu().numpy(),
-    #                                                                      train_acc / (batch_id + 1)))
-    #             torch.save(model.state_dict(), "./bert_model.pt")
-    #
-    #     print("epoch {} train acc {}".format(e + 1, train_acc / (batch_id + 1)))
+    model.train()
+    for e in range(num_epochs):
+        train_acc = 0.0
+        test_acc = 0.0
+        for batch_id, (token_ids, valid_length, segment_ids, token_ids2, valid_length2, segment_ids2, token_ids3, valid_length3, segment_ids3, label) in enumerate(tqdm(train_dataloader)):
+            optimizer.zero_grad()
+            token_ids = token_ids.long().to(device)
+            segment_ids = segment_ids.long().to(device)
+            valid_length = valid_length
+            token_ids2 = token_ids2.long().to(device)
+            segment_ids2 = segment_ids2.long().to(device)
+            valid_length2 = valid_length2
+            token_ids3 = token_ids3.long().to(device)
+            segment_ids3 = segment_ids3.long().to(device)
+            valid_length3 = valid_length3
+            label = label.long().to(device)
+            out = model(token_ids, valid_length, segment_ids, token_ids2, valid_length2, segment_ids2, token_ids3,
+                        valid_length3, segment_ids3)
+            loss = loss_fn(out, label)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
+            optimizer.step()
+            scheduler.step()  # Update learning rate schedule
+            train_acc += calc_accuracy(out, label)
+            if batch_id % log_interval == 0:
+                print("epoch {} batch id {} loss {} train acc {}".format(e + 1, batch_id + 1, loss.data.cpu().numpy(),
+                                                                         train_acc / (batch_id + 1)))
+                torch.save(model.state_dict(), "./bert_model.pt")
+
+        print("epoch {} train acc {}".format(e + 1, train_acc / (batch_id + 1)))
     evaluate(model, val_dataloader, optimizer, device)
 
     answers = []
